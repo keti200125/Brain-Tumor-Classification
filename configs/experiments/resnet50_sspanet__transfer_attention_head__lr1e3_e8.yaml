@@ -1,8 +1,8 @@
-experiment_name: resnet50_sspanet_transfer_attention_head_lr1e3_e5
+experiment_name: resnet50_sspanet_transfer_attention_head_lr1e3_e8
 trace_name: resnet50_sspanet_pretrained_seed42_v1
 report_name: ResNet50 + SSPANet transfer learning
 hypothesis: ResNet50 with SSPANet attention will improve weighted F1 by refining high-level tumor features without changing the training pipeline.
-description: Use pretrained ResNet50 features, train the SSPANet attention module and final classifier, and evaluate the hybrid attention model for 5 epochs.
+description: Use pretrained ResNet50 features, train the SSPANet attention module and final classifier, and evaluate the hybrid attention model for 8 epochs.
 tags: [resnet50, sspanet, transfer_learning, attention]
 seed: 42
 device: auto
@@ -19,7 +19,7 @@ model:
   pretrained: true
 
 training:
-  epochs: 5
+  epochs: 8
   batch_size: 24
   learning_rate: 0.001
   optimizer: AdamW
