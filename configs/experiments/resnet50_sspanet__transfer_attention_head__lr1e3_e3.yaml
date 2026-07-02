@@ -1,0 +1,38 @@
+experiment_name: resnet50_sspanet_transfer_attention_head_lr1e3_e3
+trace_name: resnet50_sspanet_pretrained_seed42_v1
+report_name: ResNet50 + SSPANet transfer learning
+hypothesis: ResNet50 with SSPANet attention will improve weighted F1 by refining high-level tumor features without changing the training pipeline.
+description: Use pretrained ResNet50 features, train the SSPANet attention module and final classifier, and evaluate the hybrid attention model for 3 epochs.
+tags: [resnet50, sspanet, transfer_learning, attention]
+seed: 42
+device: auto
+
+data:
+  root: DATA/brain_tumor_dataset
+  validation_fraction: 0.5
+  max_train_samples: null
+  max_val_samples: null
+  max_test_samples: null
+
+model:
+  name: resnet50_sspanet
+  pretrained: true
+
+training:
+  epochs: 3
+  batch_size: 24
+  learning_rate: 0.001
+  optimizer: AdamW
+  num_workers: 0
+  image_size: 224
+  monitor_metric: f1_weighted
+  monitor_mode: max
+
+outputs:
+  root: outputs
+  save_eda_plots: true
+  save_training_curves: true
+  save_prediction_grid: true
+  save_best_checkpoint: true
+  save_last_checkpoint: true
+  generate_report_after_run: true

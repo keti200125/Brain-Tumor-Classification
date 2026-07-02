@@ -1,0 +1,55 @@
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python bytecode and build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Test, type-checker, and coverage caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+
+# Local application caches
+.mplconfig/
+.pycache_compile/
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+
+# IDE and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local datasets (not stored in Git)
+/data/
+/DATA/
+
+# Generated experiment artifacts and reports
+/outputs/
+/images/
+
+# Model checkpoints and serialized weights
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+codex_project_implementation_plan.md
+data-science-2.py

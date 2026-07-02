@@ -1,0 +1,38 @@
+experiment_name: inception_v3_transfer_head_aux_lr1e3_e3
+trace_name: inception_v3_transfer_head_aux_lr1e3_e3_v1
+report_name: InceptionV3 transfer learning
+hypothesis: InceptionV3 with auxiliary logits may improve weighted F1, but requires larger input images.
+description: Use pretrained InceptionV3 with auxiliary logits enabled and image size resolved to at least 299.
+tags: [inception_v3, transfer_learning, aux_logits]
+seed: 42
+device: auto
+
+data:
+  root: DATA/brain_tumor_dataset
+  validation_fraction: 0.5
+  max_train_samples: null
+  max_val_samples: null
+  max_test_samples: null
+
+model:
+  name: inception_v3
+  pretrained: true
+
+training:
+  epochs: 3
+  batch_size: 24
+  learning_rate: 0.001
+  optimizer: AdamW
+  num_workers: 0
+  image_size: 299
+  monitor_metric: f1_weighted
+  monitor_mode: max
+
+outputs:
+  root: outputs
+  save_eda_plots: true
+  save_training_curves: true
+  save_prediction_grid: true
+  save_best_checkpoint: true
+  save_last_checkpoint: true
+  generate_report_after_run: true
