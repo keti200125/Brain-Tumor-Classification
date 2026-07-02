@@ -5,7 +5,7 @@ from __future__ import annotations
 import copy
 import time
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Callable
 
 import torch
 import torch.nn as nn
@@ -138,6 +138,7 @@ def train_model(
     monitor_mode: str = "max",
     use_inception_aux: bool = False,
     show_progress: bool = True,
+    on_epoch_end: Callable[[EpochRecord], None] | None = None,
 ) -> TrainingResult:
     """Train a model and retain both best and final parameter states."""
     if epochs <= 0:
@@ -198,13 +199,16 @@ def train_model(
             best_epoch = epoch_idx + 1
             best_state = copy.deepcopy(model.state_dict())
 
-        print(
-            f"[{model_name}] epoch {epoch_idx + 1}/{epochs} | "
-            f"train loss={train_result.loss:.4f} "
-            f"f1={train_result.metrics['f1_weighted']:.4f} | "
-            f"val loss={val_result.loss:.4f} "
-            f"f1={val_result.metrics['f1_weighted']:.4f}"
-        )
+        if on_epoch_end is not None:
+            on_epoch_end(record)
+        else:
+            print(
+                f"[{model_name}] epoch {record.epoch}/{epochs} | "
+                f"training_loss={record.train.loss:.4f} | "
+                f"validation_loss={record.validation.loss:.4f} | "
+                f"training_f1={record.train.metrics['f1_weighted']:.4f} | "
+                f"validation_f1={record.validation.metrics['f1_weighted']:.4f}"
+            )
 
     return TrainingResult(
         epochs=records,

@@ -8,7 +8,7 @@ seed: 42
 device: auto
 
 data:
-  root: DATA/brain_tumor_dataset
+  root: data
   validation_fraction: 0.5
   max_train_samples: null
   max_val_samples: null

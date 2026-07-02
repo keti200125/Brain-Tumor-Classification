@@ -185,6 +185,17 @@ class ExperimentRunner:
                 monitor_mode=self.config.training.monitor_mode,
                 use_inception_aux=use_inception_aux,
                 show_progress=self.show_progress,
+                on_epoch_end=lambda record: logger.info(
+                    "Epoch %s/%s | training_loss=%.4f | validation_loss=%.4f | "
+                    "training_f1=%.4f | validation_f1=%.4f | duration=%.2fs",
+                    record.epoch,
+                    self.config.training.epochs,
+                    record.train.loss,
+                    record.validation.loss,
+                    record.train.metrics["f1_weighted"],
+                    record.validation.metrics["f1_weighted"],
+                    record.duration_seconds,
+                ),
             )
 
             history_payload = {self.config.model.name: training_result.plot_history()}

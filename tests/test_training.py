@@ -115,6 +115,31 @@ class TrainingEngineTest(unittest.TestCase):
             set(result.last_state_dict),
         )
 
+    def test_train_model_reports_each_epoch_to_callback(self) -> None:
+        torch.manual_seed(7)
+        model = nn.Linear(2, 2)
+        optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
+        reported_epochs = []
+
+        train_model(
+            model=model,
+            train_loader=make_loader(),
+            val_loader=make_loader(),
+            criterion=nn.CrossEntropyLoss(),
+            optimizer=optimizer,
+            device=torch.device("cpu"),
+            model_name="tiny",
+            epochs=2,
+            show_progress=False,
+            on_epoch_end=reported_epochs.append,
+        )
+
+        self.assertEqual([record.epoch for record in reported_epochs], [1, 2])
+        self.assertTrue(all(record.train.loss > 0 for record in reported_epochs))
+        self.assertTrue(
+            all(record.validation.loss > 0 for record in reported_epochs)
+        )
+
     def test_inception_auxiliary_head_contributes_to_training(self) -> None:
         torch.manual_seed(7)
         model = AuxiliaryModel()
@@ -161,4 +186,3 @@ class PredictionTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

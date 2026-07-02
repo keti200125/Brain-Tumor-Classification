@@ -116,9 +116,10 @@ def main(argv: Sequence[str] | None = None) -> None:
     else:
         args = cli_args
         data_candidates = (
-            root / "DATA" / "brain_tumor_dataset",
-            root / "DATA",
             root / "data",
+            root / "DATA",
+            root / "data" / "brain_tumor_dataset",
+            root / "DATA" / "brain_tumor_dataset",
         )
         data_root = next(
             (
