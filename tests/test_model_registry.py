@@ -13,6 +13,7 @@ from brain_tumor_classifier.models import (
     SSPANet,
     available_models,
     build_model,
+    build_resnet50,
     build_resnet50_sspanet,
     freeze_all_but,
     get_architecture_name,
@@ -28,12 +29,14 @@ class DefaultModelRegistryTest(unittest.TestCase):
                 "custom_cnn",
                 "inception_v3",
                 "resnet18",
+                "resnet50",
                 "resnet50_sspanet",
                 "vgg11",
             ),
         )
         self.assertEqual(get_architecture_name("custom_cnn"), "CustomTumorCNN")
         self.assertEqual(get_architecture_name("resnet18"), "ResNet18")
+        self.assertEqual(get_architecture_name("resnet50"), "ResNet50")
         self.assertEqual(
             get_architecture_name("resnet50_sspanet"),
             "ResNet50 + SSPANet",
@@ -69,6 +72,17 @@ class DefaultModelRegistryTest(unittest.TestCase):
 
         self.assertIsInstance(model, ResNet50SSPANet)
         self.assertFalse(pretrained_used)
+        with torch.no_grad():
+            self.assertEqual(tuple(model(torch.randn(2, 3, 224, 224)).shape), (2, 4))
+
+    def test_plain_resnet50_returns_expected_logits_shape(self) -> None:
+        model, pretrained_used = build_resnet50(
+            num_classes=4,
+            pretrained=False,
+        )
+
+        self.assertFalse(pretrained_used)
+        self.assertTrue(all(parameter.requires_grad for parameter in model.parameters()))
         with torch.no_grad():
             self.assertEqual(tuple(model(torch.randn(2, 3, 224, 224)).shape), (2, 4))
 
@@ -150,6 +164,27 @@ class ModelRegistryTest(unittest.TestCase):
             all(name.startswith(("attention.", "fc.")) for name in trainable_names)
         )
         self.assertIn("fc.weight", trainable_names)
+
+    def test_pretrained_resnet50_freezes_everything_except_fc(self) -> None:
+        from unittest.mock import patch
+        from torchvision import models as tv_models
+
+        original_resnet50 = tv_models.resnet50
+        with patch(
+            "brain_tumor_classifier.models.torchvision_models.models.resnet50",
+            side_effect=lambda weights: original_resnet50(weights=None),
+        ):
+            model, pretrained_used = build_resnet50(
+                num_classes=4,
+                pretrained=True,
+            )
+
+        self.assertTrue(pretrained_used)
+        trainable_names = {
+            name for name, parameter in model.named_parameters()
+            if parameter.requires_grad
+        }
+        self.assertEqual(trainable_names, {"fc.weight", "fc.bias"})
 
 
 if __name__ == "__main__":

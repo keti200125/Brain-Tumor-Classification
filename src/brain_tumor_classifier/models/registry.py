@@ -10,6 +10,7 @@ from brain_tumor_classifier.models.custom_cnn import build_custom_cnn
 from brain_tumor_classifier.models.torchvision_models import (
     build_inception_v3,
     build_resnet18,
+    build_resnet50,
     build_resnet50_sspanet,
     build_vgg11,
 )
@@ -59,6 +60,7 @@ class ModelRegistry:
 model_registry = ModelRegistry()
 model_registry.register("custom_cnn", "CustomTumorCNN", build_custom_cnn)
 model_registry.register("resnet18", "ResNet18", build_resnet18)
+model_registry.register("resnet50", "ResNet50", build_resnet50)
 model_registry.register(
     "resnet50_sspanet",
     "ResNet50 + SSPANet",

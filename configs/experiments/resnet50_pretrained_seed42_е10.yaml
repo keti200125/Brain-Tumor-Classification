@@ -1,0 +1,38 @@
+experiment_name: resnet50_pretrained_seed42_е10
+trace_name: resnet50_pretrained_seed42_v1
+report_name: ResNet50 transfer-learning baseline
+hypothesis: A standard pretrained ResNet50 provides a strong baseline for measuring the contribution of SSPANet attention.
+description: Train only the final classifier of a pretrained torchvision ResNet50 for direct comparison with ResNet50 plus SSPANet.
+tags: [resnet50, baseline, transfer_learning, head_only]
+seed: 42
+device: auto
+
+data:
+  root: data
+  validation_fraction: 0.5
+  max_train_samples: null
+  max_val_samples: null
+  max_test_samples: null
+
+model:
+  name: resnet50
+  pretrained: true
+
+training:
+  epochs: 10
+  batch_size: 24
+  learning_rate: 0.001
+  optimizer: AdamW
+  num_workers: 4
+  image_size: 224
+  monitor_metric: f1_weighted
+  monitor_mode: max
+
+outputs:
+  root: outputs
+  save_eda_plots: true
+  save_training_curves: true
+  save_prediction_grid: true
+  save_best_checkpoint: true
+  save_last_checkpoint: true
+  generate_report_after_run: true

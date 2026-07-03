@@ -89,6 +89,27 @@ def build_resnet18(
     return model, got_pretrained
 
 
+def build_resnet50(
+    num_classes: int,
+    pretrained: bool,
+) -> tuple[nn.Module, bool]:
+    """Build a plain torchvision ResNet50 classification baseline."""
+    got_pretrained = False
+    if pretrained:
+        try:
+            model = models.resnet50(weights=models.ResNet50_Weights.DEFAULT)
+            got_pretrained = True
+        except Exception:
+            model = models.resnet50(weights=None)
+    else:
+        model = models.resnet50(weights=None)
+
+    model.fc = nn.Linear(model.fc.in_features, num_classes)
+    if got_pretrained:
+        freeze_all_but(model, trainable_keys=("fc",))
+    return model, got_pretrained
+
+
 class ResNet50SSPANet(nn.Module):
     """ResNet50 backbone with an SSPANet feature-refinement head."""
 

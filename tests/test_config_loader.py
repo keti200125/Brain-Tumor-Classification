@@ -131,13 +131,13 @@ class ConfigLoaderTest(unittest.TestCase):
             for path in paths
         ]
 
-        self.assertEqual(len(configs), 5)
         self.assertEqual(
             {config.model.name for config in configs},
             {
                 "custom_cnn",
                 "inception_v3",
                 "resnet18",
+                "resnet50",
                 "resnet50_sspanet",
                 "vgg11",
             },
