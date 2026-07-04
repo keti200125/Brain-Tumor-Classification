@@ -1,5 +1,5 @@
 experiment_name: resnet50_pretrained_seed42_e12
-trace_name: resnet50_pretrained_seed42_v1
+trace_name: resnet50_pretrained_seed42_e12_v1
 report_name: ResNet50 transfer-learning baseline
 hypothesis: A standard pretrained ResNet50 provides a strong baseline for measuring the contribution of SSPANet attention.
 description: Train only the final classifier of a pretrained torchvision ResNet50 for direct comparison with ResNet50 plus SSPANet.
@@ -25,7 +25,7 @@ training:
   optimizer: AdamW
   num_workers: 4
   image_size: 224
-  monitor_metric: f1_weighteds
+  monitor_metric: f1_weighted
   monitor_mode: max
 
 outputs:

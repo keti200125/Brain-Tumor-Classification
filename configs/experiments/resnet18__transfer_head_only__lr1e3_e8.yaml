@@ -1,9 +1,9 @@
-experiment_name: vgg11_transfer_classifier_only_lr1e8_e8
-trace_name: vgg11_transfer_classifier_only_lr1e8_e8_v1
-report_name: VGG11 transfer learning
-hypothesis: VGG11 pretrained features will provide a strong transfer-learning comparison point.
-description: Use pretrained VGG11 and train only the final classifier layer.
-tags: [vgg11, transfer_learning, classifier_only]
+experiment_name: resnet18_transfer_head_only_lr1e3_e8
+trace_name: resnet18_transfer_head_only_lr1e3_e8_v1
+report_name: ResNet18 transfer learning
+hypothesis: ResNet18 pretrained features will improve weighted F1 compared with the custom CNN baseline.
+description: Use pretrained ResNet18 and train only the final fully connected layer.
+tags: [resnet18, transfer_learning, head_only]
 seed: 42
 device: auto
 
@@ -15,7 +15,7 @@ data:
   max_test_samples: null
 
 model:
-  name: vgg11
+  name: resnet18
   pretrained: true
 
 training:

@@ -1,9 +1,9 @@
-experiment_name: resnet18_transfer_head_only_lr1e8_e8
-trace_name: resnet18_transfer_head_only_lr1e8_e8_v1
-report_name: ResNet18 transfer learning
-hypothesis: ResNet18 pretrained features will improve weighted F1 compared with the custom CNN baseline.
-description: Use pretrained ResNet18 and train only the final fully connected layer.
-tags: [resnet18, transfer_learning, head_only]
+experiment_name: inception_v3_transfer_head_aux_lr1e3_e8
+trace_name: inception_v3_transfer_head_aux_lr1e3_e8_v1
+report_name: InceptionV3 transfer learning
+hypothesis: InceptionV3 with auxiliary logits may improve weighted F1, but requires larger input images.
+description: Use pretrained InceptionV3 with auxiliary logits enabled and image size resolved to at least 299.
+tags: [inception_v3, transfer_learning, aux_logits]
 seed: 42
 device: auto
 
@@ -15,7 +15,7 @@ data:
   max_test_samples: null
 
 model:
-  name: resnet18
+  name: inception_v3
   pretrained: true
 
 training:
@@ -24,7 +24,7 @@ training:
   learning_rate: 0.001
   optimizer: AdamW
   num_workers: 0
-  image_size: 224
+  image_size: 299
   monitor_metric: f1_weighted
   monitor_mode: max
 

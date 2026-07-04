@@ -1,9 +1,9 @@
-experiment_name: inception_v3_transfer_head_aux_lr1e8_e8
-trace_name: inception_v3_transfer_head_aux_lr1e8_e8_v1
-report_name: InceptionV3 transfer learning
-hypothesis: InceptionV3 with auxiliary logits may improve weighted F1, but requires larger input images.
-description: Use pretrained InceptionV3 with auxiliary logits enabled and image size resolved to at least 299.
-tags: [inception_v3, transfer_learning, aux_logits]
+experiment_name: vgg11_transfer_classifier_only_lr1e3_e8
+trace_name: vgg11_transfer_classifier_only_lr1e3_e8_v1
+report_name: VGG11 transfer learning
+hypothesis: VGG11 pretrained features will provide a strong transfer-learning comparison point.
+description: Use pretrained VGG11 and train only the final classifier layer.
+tags: [vgg11, transfer_learning, classifier_only]
 seed: 42
 device: auto
 
@@ -15,7 +15,7 @@ data:
   max_test_samples: null
 
 model:
-  name: inception_v3
+  name: vgg11
   pretrained: true
 
 training:
@@ -24,7 +24,7 @@ training:
   learning_rate: 0.001
   optimizer: AdamW
   num_workers: 0
-  image_size: 299
+  image_size: 224
   monitor_metric: f1_weighted
   monitor_mode: max
 
