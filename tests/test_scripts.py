@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import contextlib
+import csv
 import io
+import json
 import sys
 import tempfile
 import unittest
@@ -20,10 +22,141 @@ from brain_tumor_classifier.config import (
     TrainingConfig,
 )
 from brain_tumor_classifier.experiments import ExperimentResult
-from scripts import generate_report, run_all_configs, run_experiment
+from brain_tumor_classifier.training import EpochResult
+from scripts import evaluate_checkpoint, generate_report, run_all_configs, run_experiment
 
 
 class ScriptEntryPointTest(unittest.TestCase):
+    def test_checkpoint_recovery_records_success_once(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            output_root = root / "outputs"
+            config_path = root / "config.yaml"
+            config_path.write_text("experiment_name: exp\n", encoding="utf-8")
+            config = self._make_config(config_path, output_root)
+            run_id = "20260704-130818__trace__47ef0863"
+            run_dir = output_root / "experiments" / "exp" / run_id
+            (run_dir / "plots").mkdir(parents=True)
+            checkpoint_dir = output_root / "checkpoints" / "exp" / run_id
+            checkpoint_dir.mkdir(parents=True)
+            checkpoint_path = checkpoint_dir / "best_model.pt"
+            checkpoint_path.touch()
+
+            data_module = Mock(
+                train_samples=list(range(10)),
+                val_samples=list(range(4)),
+                test_samples=list(range(4)),
+                class_names=["a", "b"],
+            )
+            validation = EpochResult(
+                loss=0.3,
+                metrics={
+                    "accuracy": 0.8,
+                    "f1_weighted": 0.79,
+                    "precision_weighted": 0.81,
+                    "recall_weighted": 0.8,
+                },
+                sample_count=4,
+            )
+            test = EpochResult(
+                loss=0.4,
+                metrics={
+                    "accuracy": 0.75,
+                    "f1_weighted": 0.74,
+                    "precision_weighted": 0.76,
+                    "recall_weighted": 0.75,
+                },
+                sample_count=4,
+            )
+            checkpoint = {
+                "experiment_name": "exp",
+                "trace_name": "trace",
+                "run_id": run_id,
+                "config_hash": "47ef0863",
+                "pretrained_used": True,
+                "best_epoch": 3,
+            }
+
+            with patch.object(evaluate_checkpoint, "generate_excel_report"):
+                first_append = evaluate_checkpoint._record_recovered_results(
+                    config=config,
+                    checkpoint=checkpoint,
+                    checkpoint_path=checkpoint_path,
+                    data_module=data_module,
+                    image_size=224,
+                    validation_result=validation,
+                    test_result=test,
+                )
+                second_append = evaluate_checkpoint._record_recovered_results(
+                    config=config,
+                    checkpoint=checkpoint,
+                    checkpoint_path=checkpoint_path,
+                    data_module=data_module,
+                    image_size=224,
+                    validation_result=validation,
+                    test_result=test,
+                )
+
+            metrics = json.loads((run_dir / "metrics.json").read_text())
+            with (output_root / "experiment_history.csv").open(
+                "r", encoding="utf-8", newline=""
+            ) as handle:
+                history_rows = list(csv.DictReader(handle))
+
+        self.assertTrue(first_append)
+        self.assertFalse(second_append)
+        self.assertEqual(metrics["status"], "success")
+        self.assertTrue(metrics["recovered_from_checkpoint"])
+        self.assertEqual(metrics["metrics"]["test_f1_weighted"], 0.74)
+        self.assertEqual(len(history_rows), 1)
+        self.assertEqual(history_rows[0]["status"], "success")
+
+    def test_evaluate_checkpoint_prints_metrics_without_training(self) -> None:
+        evaluation = evaluate_checkpoint.CheckpointEvaluation(
+            checkpoint_path=Path("/tmp/best_model.pt"),
+            model_name="inception_v3",
+            test_size=8,
+            result=EpochResult(
+                loss=0.42,
+                metrics={
+                    "accuracy": 0.81,
+                    "f1_weighted": 0.80,
+                    "precision_weighted": 0.82,
+                    "recall_weighted": 0.81,
+                },
+                sample_count=8,
+            ),
+        )
+        with patch.object(
+            evaluate_checkpoint,
+            "evaluate_saved_checkpoint",
+            return_value=evaluation,
+        ) as evaluate_mock:
+            stream = io.StringIO()
+            with contextlib.redirect_stdout(stream):
+                exit_code = evaluate_checkpoint.main(
+                    [
+                        "--config",
+                        "config.yaml",
+                        "--checkpoint",
+                        "best_model.pt",
+                        "--device",
+                        "cpu",
+                    ]
+                )
+
+        self.assertEqual(exit_code, 0)
+        evaluate_mock.assert_called_once_with(
+            config_path="config.yaml",
+            checkpoint_path="best_model.pt",
+            device_name="cpu",
+            record_results=False,
+        )
+        output = stream.getvalue()
+        self.assertIn("Model: inception_v3", output)
+        self.assertIn("loss=0.4200", output)
+        self.assertIn("f1_weighted=0.8000", output)
+
     def test_run_experiment_main_prints_required_fields(self) -> None:
         result = self._make_result()
         fake_runner = Mock()
