@@ -1,0 +1,38 @@
+experiment_name: custom_cnn_regularized_lr3e4_e10
+trace_name: custom_cnn_regularized_lr3e4_e10_v1
+report_name: Custom CNN regularized scratch baseline
+hypothesis: Reducing the learning rate may stabilize training and reduce overfitting compared to the initial custom CNN scratch baseline.
+description: Train the custom tumor CNN from scratch with a lower learning rate for 10 epochs, using validation weighted F1 to select the best checkpoint.
+tags: [custom_cnn, baseline, scratch, regularized, overfitting_reduction]
+seed: 42
+device: auto
+
+data:
+  root: data
+  validation_fraction: 0.5
+  max_train_samples: null
+  max_val_samples: null
+  max_test_samples: null
+
+model:
+  name: custom_cnn
+  pretrained: false
+
+training:
+  epochs: 10
+  batch_size: 24
+  learning_rate: 0.0003
+  optimizer: AdamW
+  num_workers: 0
+  image_size: 224
+  monitor_metric: f1_weighted
+  monitor_mode: max
+
+outputs:
+  root: outputs
+  save_eda_plots: false
+  save_training_curves: true
+  save_prediction_grid: true
+  save_best_checkpoint: true
+  save_last_checkpoint: true
+  generate_report_after_run: true
