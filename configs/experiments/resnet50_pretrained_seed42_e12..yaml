@@ -1,4 +1,4 @@
-experiment_name: resnet50_pretrained_seed42_е10
+experiment_name: resnet50_pretrained_seed42_e12
 trace_name: resnet50_pretrained_seed42_v1
 report_name: ResNet50 transfer-learning baseline
 hypothesis: A standard pretrained ResNet50 provides a strong baseline for measuring the contribution of SSPANet attention.
@@ -19,7 +19,7 @@ model:
   pretrained: true
 
 training:
-  epochs: 10
+  epochs: 12
   batch_size: 24
   learning_rate: 0.001
   optimizer: AdamW
