@@ -51,12 +51,21 @@ def build_inception_v3(
             model = models.inception_v3(
                 weights=models.Inception_V3_Weights.DEFAULT,
                 aux_logits=True,
+                transform_input=True,
             )
             got_pretrained = True
         except Exception:
-            model = models.inception_v3(weights=None, aux_logits=True)
+            model = models.inception_v3(
+                weights=None,
+                aux_logits=True,
+                transform_input=True,
+            )
     else:
-        model = models.inception_v3(weights=None, aux_logits=True)
+        model = models.inception_v3(
+            weights=None,
+            aux_logits=True,
+            transform_input=True,
+        )
 
     model.fc = nn.Linear(model.fc.in_features, num_classes)
     if model.AuxLogits is not None:

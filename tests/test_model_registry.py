@@ -13,6 +13,7 @@ from brain_tumor_classifier.models import (
     SSPANet,
     available_models,
     build_model,
+    build_inception_v3,
     build_resnet50,
     build_resnet50_sspanet,
     freeze_all_but,
@@ -132,6 +133,36 @@ class ModelRegistryTest(unittest.TestCase):
         self.assertIs(tuple_aux, aux_logits)
         self.assertIs(object_logits, logits)
         self.assertIs(object_aux, aux_logits)
+
+    def test_inception_uses_same_input_transform_when_reloaded(self) -> None:
+        from unittest.mock import patch
+
+        class FakeAuxLogits(nn.Module):
+            def __init__(self) -> None:
+                super().__init__()
+                self.fc = nn.Linear(8, 8)
+
+        class FakeInception(nn.Module):
+            def __init__(self, transform_input: bool) -> None:
+                super().__init__()
+                self.fc = nn.Linear(8, 8)
+                self.AuxLogits = FakeAuxLogits()
+                self.transform_input = transform_input
+
+        def fake_builder(**kwargs: object) -> nn.Module:
+            return FakeInception(bool(kwargs.get("transform_input", False)))
+
+        with patch(
+            "brain_tumor_classifier.models.torchvision_models.models.inception_v3",
+            side_effect=fake_builder,
+        ):
+            pretrained_model, pretrained_used = build_inception_v3(4, True)
+            reloaded_model, reloaded_pretrained_used = build_inception_v3(4, False)
+
+        self.assertTrue(pretrained_used)
+        self.assertFalse(reloaded_pretrained_used)
+        self.assertTrue(pretrained_model.transform_input)
+        self.assertTrue(reloaded_model.transform_input)
 
     def test_sspanet_preserves_feature_map_shape(self) -> None:
         attention = SSPANet(channels=2048)
