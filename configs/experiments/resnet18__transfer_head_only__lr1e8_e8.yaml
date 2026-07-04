@@ -1,0 +1,38 @@
+experiment_name: resnet18_transfer_head_only_lr1e8_e8
+trace_name: resnet18_transfer_head_only_lr1e8_e8_v1
+report_name: ResNet18 transfer learning
+hypothesis: ResNet18 pretrained features will improve weighted F1 compared with the custom CNN baseline.
+description: Use pretrained ResNet18 and train only the final fully connected layer.
+tags: [resnet18, transfer_learning, head_only]
+seed: 42
+device: auto
+
+data:
+  root: data
+  validation_fraction: 0.5
+  max_train_samples: null
+  max_val_samples: null
+  max_test_samples: null
+
+model:
+  name: resnet18
+  pretrained: true
+
+training:
+  epochs: 8
+  batch_size: 24
+  learning_rate: 0.001
+  optimizer: AdamW
+  num_workers: 0
+  image_size: 224
+  monitor_metric: f1_weighted
+  monitor_mode: max
+
+outputs:
+  root: outputs
+  save_eda_plots: true
+  save_training_curves: true
+  save_prediction_grid: true
+  save_best_checkpoint: true
+  save_last_checkpoint: true
+  generate_report_after_run: true

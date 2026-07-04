@@ -1,0 +1,38 @@
+experiment_name: vgg11_transfer_classifier_only_lr1e8_e8
+trace_name: vgg11_transfer_classifier_only_lr1e8_e8_v1
+report_name: VGG11 transfer learning
+hypothesis: VGG11 pretrained features will provide a strong transfer-learning comparison point.
+description: Use pretrained VGG11 and train only the final classifier layer.
+tags: [vgg11, transfer_learning, classifier_only]
+seed: 42
+device: auto
+
+data:
+  root: data
+  validation_fraction: 0.5
+  max_train_samples: null
+  max_val_samples: null
+  max_test_samples: null
+
+model:
+  name: vgg11
+  pretrained: true
+
+training:
+  epochs: 8
+  batch_size: 24
+  learning_rate: 0.001
+  optimizer: AdamW
+  num_workers: 0
+  image_size: 224
+  monitor_metric: f1_weighted
+  monitor_mode: max
+
+outputs:
+  root: outputs
+  save_eda_plots: true
+  save_training_curves: true
+  save_prediction_grid: true
+  save_best_checkpoint: true
+  save_last_checkpoint: true
+  generate_report_after_run: true
